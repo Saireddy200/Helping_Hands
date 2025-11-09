@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4;
+}
+
+.btn {
+  @apply px-6 py-2 rounded-lg font-medium transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-md p-6;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
+}
+
+.section-title {
+  @apply text-3xl font-bold text-gray-800 mb-8;
+}
+
+/* Aurora background animations and utility classes */
+@keyframes aurora-move {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(30px, -20px, 0) scale(1.05); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+
+@keyframes aurora-slower {
+  0% { transform: translate3d(0,0,0) scale(1); }
+  50% { transform: translate3d(-20px, 10px, 0) scale(1.03); }
+  100% { transform: translate3d(0,0,0) scale(1); }
+}
+
+.animate-aurora-slow {
+  animation: aurora-move 10s ease-in-out infinite;
+}
+
+.animate-aurora-slower {
+  animation: aurora-slower 18s ease-in-out infinite;
+}
+
+/* typing cursor utility in case components need it */
+.typing-cursor::after {
+  content: '|';
+  margin-left: 6px;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
