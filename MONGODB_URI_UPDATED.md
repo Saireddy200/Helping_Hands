@@ -4,9 +4,9 @@
 
 ✅ **Updated MongoDB URI** in `server/.env`:
 ```
-Old: mongodb+srv://saisrinureddy80960_db_user:zelKcyVMqVrYzspd@cluster0.yn0xsqs.mongodb.net/helpinghands?retryWrites=false&w=majority&appName=Cluster0
+Old: mongodb+srv://saisrinureddy80960_db_user:[PASSWORD_REMOVED]@cluster0.yn0xsqs.mongodb.net/helpinghands?retryWrites=false&w=majority&appName=Cluster0
 
-New: mongodb+srv://saisrinureddy80960_db_user:<db_password>@cluster0.yn0xsqs.mongodb.net/helpinghands?appName=Cluster0
+New: mongodb+srv://saisrinureddy80960_db_user:[PASSWORD_HIDDEN]@cluster0.yn0xsqs.mongodb.net/helpinghands?appName=Cluster0
 ```
 
 ✅ **`.env` file is safely ignored** - NOT committed to GitHub
@@ -36,7 +36,7 @@ Your `.env` file is for **local development only**. For Vercel deployment:
 ### Step 1: Get Your Real MongoDB Password
 Replace `<db_password>` in `.env` with your actual password:
 ```
-MONGODB_URI=mongodb+srv://saisrinureddy80960_db_user:YOUR_REAL_PASSWORD@cluster0.yn0xsqs.mongodb.net/helpinghands?appName=Cluster0
+MONGODB_URI=mongodb+srv://saisrinureddy80960_db_user:[PASSWORD_HIDDEN]@cluster0.yn0xsqs.mongodb.net/helpinghands?appName=Cluster0
 ```
 
 ### Step 2: Add to Vercel (Do NOT add .env file!)

@@ -87,7 +87,7 @@ npm start
 ### Option 3: MongoDB Compass (Local Viewer)
 ```bash
 # Connect to your Atlas database from Compass:
-# Connection String: mongodb+srv://saisrinureddy80960_db_user:zelKcyVMqVrYzspd@cluster0.yn0xsqs.mongodb.net/
+# Connection String: mongodb+srv://saisrinureddy80960_db_user:[PASSWORD_HIDDEN]@cluster0.yn0xsqs.mongodb.net/
 
 # This lets you view/manage data from local desktop app
 ```
