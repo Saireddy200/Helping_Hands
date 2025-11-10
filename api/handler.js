@@ -1,21 +1,11 @@
 require('dotenv').config();
 
-// IMPORTANT: This allows MongoDB Atlas to work on Windows by disabling SSL certificate verification
-// In production, use proper SSL certificates instead
+// Allow MongoDB connection on Vercel
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const connectDB = require('../server/config/db');
-
-// Import routes
-const authRoutes = require('../server/routes/authRoutes');
-const postRoutes = require('../server/routes/postRoutes');
-const donationRoutes = require('../server/routes/donationRoutes');
-const contactRoutes = require('../server/routes/contactRoutes');
-const adminRoutes = require('../server/routes/adminRoutes');
-const campaignRoutes = require('../server/routes/campaignRoutes');
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -28,35 +18,87 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, '../server/uploads')));
+// MongoDB connection with caching
+let isConnected = false;
 
-// Connect to DB on first request (for serverless)
-let dbConnected = false;
+const connectDB = async () => {
+  if (isConnected) {
+    console.log('Using existing MongoDB connection');
+    return;
+  }
+
+  try {
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable not set');
+    }
+
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      retryWrites: true,
+      w: 'majority',
+      authSource: 'admin',
+    });
+
+    isConnected = true;
+    console.log('✅ MongoDB Connected:', conn.connection.name);
+  } catch (error) {
+    console.error('❌ MongoDB Connection Error:', error.message);
+    throw error;
+  }
+};
+
+// Import routes AFTER middleware setup
+let campaignRoutes, authRoutes, postRoutes, donationRoutes, contactRoutes, adminRoutes;
+
+const initializeRoutes = async () => {
+  try {
+    campaignRoutes = require('../server/routes/campaignRoutes');
+    authRoutes = require('../server/routes/authRoutes');
+    postRoutes = require('../server/routes/postRoutes');
+    donationRoutes = require('../server/routes/donationRoutes');
+    contactRoutes = require('../server/routes/contactRoutes');
+    adminRoutes = require('../server/routes/adminRoutes');
+    console.log('✅ Routes initialized');
+  } catch (error) {
+    console.error('❌ Error initializing routes:', error.message);
+  }
+};
+
+// Initialize on first request
+let initialized = false;
 app.use(async (req, res, next) => {
-  if (!dbConnected) {
+  if (!initialized) {
     try {
       await connectDB();
-      dbConnected = true;
-      console.log('✅ MongoDB connected in serverless');
-    } catch (err) {
-      console.error('❌ MongoDB connection failed:', err.message);
+      await initializeRoutes();
+      
+      // Register routes
+      app.use('/api/auth', authRoutes);
+      app.use('/api/posts', postRoutes);
+      app.use('/api/donations', donationRoutes);
+      app.use('/api/contact', contactRoutes);
+      app.use('/api/admin', adminRoutes);
+      app.use('/api/campaigns', campaignRoutes);
+
+      initialized = true;
+      console.log('✅ API fully initialized');
+    } catch (error) {
+      console.error('❌ Initialization error:', error);
+      return res.status(500).json({ error: 'Server initialization failed', details: error.message });
     }
   }
   next();
 });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/posts', postRoutes);
-app.use('/api/donations', donationRoutes);
-app.use('/api/contact', contactRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/campaigns', campaignRoutes);
-
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), environment: process.env.NODE_ENV });
+  res.json({ 
+    status: 'ok',
+    mongodb: isConnected ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Root endpoint
@@ -66,9 +108,10 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('API Error:', err);
+  console.error('API Error:', err.message);
   res.status(err.status || 500).json({
-    error: err.message || 'Internal Server Error'
+    error: err.message || 'Internal Server Error',
+    details: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
