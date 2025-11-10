@@ -14,9 +14,12 @@
       "dest": "server/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "client/dist/$1",
-      "methods": ["GET", "HEAD", "OPTIONS"]
+      "src": "/assets/(.*)",
+      "dest": "client/dist/assets/$1"
+    },
+    {
+      "src": "/(.*\\.\\w+)$",
+      "dest": "client/dist/$1"
     },
     {
       "src": "/(.*)",
