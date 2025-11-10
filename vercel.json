@@ -2,12 +2,6 @@
   "version": 2,
   "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/dist",
-  "builds": [
-    {
-      "src": "server/server.js",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
@@ -18,7 +12,15 @@
       "dest": "client/dist/assets/$1"
     },
     {
-      "src": "/(.*\\.\\w+)$",
+      "src": "/(.*\\.js)$",
+      "dest": "client/dist/$1"
+    },
+    {
+      "src": "/(.*\\.css)$",
+      "dest": "client/dist/$1"
+    },
+    {
+      "src": "/(.*\\.json)$",
       "dest": "client/dist/$1"
     },
     {
