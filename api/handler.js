@@ -2,9 +2,7 @@ require('dotenv').config();
 
 // IMPORTANT: This allows MongoDB Atlas to work on Windows by disabling SSL certificate verification
 // In production, use proper SSL certificates instead
-if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const express = require('express');
 const cors = require('cors');
@@ -33,8 +31,20 @@ app.use(cors({
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../server/uploads')));
 
-// Connect to DB
-connectDB();
+// Connect to DB on first request (for serverless)
+let dbConnected = false;
+app.use(async (req, res, next) => {
+  if (!dbConnected) {
+    try {
+      await connectDB();
+      dbConnected = true;
+      console.log('✅ MongoDB connected in serverless');
+    } catch (err) {
+      console.error('❌ MongoDB connection failed:', err.message);
+    }
+  }
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -46,7 +56,12 @@ app.use('/api/campaigns', campaignRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), environment: process.env.NODE_ENV });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'HelpingHands API Server', version: '1.0.0' });
 });
 
 // Error handling middleware
@@ -57,5 +72,5 @@ app.use((err, req, res, next) => {
   });
 });
 
-// For Vercel serverless
+// Export for Vercel
 module.exports = app;
