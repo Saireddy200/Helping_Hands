@@ -7,10 +7,10 @@
     "dev": "concurrently \"cd server && npm start\" \"cd client && npm run dev\"",
     "dev:server": "cd server && npm start",
     "dev:client": "cd client && npm run dev",
-  "dev:fix": "concurrently \"cd server && npm start\" \"cd client && npm run dev:node\"",
+    "dev:fix": "concurrently \"cd server && npm start\" \"cd client && npm run dev:node\"",
     "server": "cd server && npm start",
     "client": "cd client && npm run dev",
-    "build": "cd client && npm run build",
+    "build": "npm install && cd client && npm install && npm run build",
     "install-all": "npm install && cd server && npm install && cd ../client && npm install"
   },
   "keywords": [
